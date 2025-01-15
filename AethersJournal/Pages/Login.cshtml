@@ -1,0 +1,43 @@
+﻿@page
+@model AethersJournal.Pages.LoginModel
+@{
+
+}
+
+@section Scripts {
+    <script>
+        async function login() {
+            const email = document.getElementById("email-input");
+            const password = document.getElementById("password-input");
+
+            const response = await fetch("https://aethersjournaldatabase.azurewebsites.net/api/user/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({email: email.value, password: password.value}),
+                credentials: "include"
+            });
+
+            if (response.ok) {
+                window.location.href = "/Journal";
+            }
+        }
+    </script>
+}
+
+<div id="container">
+    <h1 id="login-title">Aethers Journal</h1>
+    <div id="login-container">
+        <div class="input-container">
+            <label id="email-label">Email</label>
+            <input id="email-input" />
+        </div>
+        <div class="input-container">
+            <label id="password-label">Password</label>
+            <input id="password-input" type="password"/>
+        </div>
+        <button onclick="login()" id="login-button">Login</button>
+        <a id="register-link" href="/Register">Register</a>
+    </div>
+</div>

@@ -1,0 +1,70 @@
+#container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#login-title {
+    font-family: var(--title-font-family);
+    color: var(--title-color);
+    font-weight: 500;
+    font-size: 3em;
+    margin: 0;
+}
+
+#login-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 350px;
+    height: 400px;
+    padding: 55px 35px;
+    background-color: var(--navbar-bg-color);
+    border-radius: 10px;
+    box-shadow: 1px 1px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#email-label, #password-label {
+    font-size: 0.9em;
+    color: var(--title-color);
+    font-family: var(--desc-font-family);
+}
+
+#email-input, #password-input {
+    font-family: var(--desc-font-family);
+    border: none;
+    border-radius: 3px;
+    height: 30px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+}
+
+#email-input:focus, #password-input:focus {
+    outline: none;
+}
+
+#login-button {
+    margin-top: 20px;
+    font-family: var(--desc-font-family);
+    background-color: var(--title-color);
+    height: 30px;
+    color: var(--navbar-bg-color);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#register-link {
+    font-size: 0.8em;
+    font-family: var(--desc-font-family);
+    font-size: 0.9em;
+    color: var(--title-color);
+    margin-top: 2px;
+}

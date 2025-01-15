@@ -1,0 +1,6 @@
+@GeminiAIChatTherapist_HostAddress = http://localhost:5298
+
+GET {{GeminiAIChatTherapist_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

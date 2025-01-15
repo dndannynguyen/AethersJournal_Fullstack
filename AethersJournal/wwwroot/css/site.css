@@ -1,0 +1,128 @@
+:root {
+  --main-bg-color: #F7F6F2;
+
+  --navbar-bg-color: #DACDC3;
+  --navbar-item-bg-color: #C39282;
+
+  --title-color: #AD5B45;
+  --title-fainted-color: #aa8669;
+  --title-fainted-lighter-color: #d3a783;
+  --title-fainted-muted-color: #c09c7f96;
+
+  --chatbox-header-color: #b98475;
+  --chatbox-bg-color: #E0CBBA;
+  --chatbox-ai-message-bg-color: #F7F6F2;
+  --chatbox-user-message-bg-color: #C39282;
+  --chatbox-ai-message-text-color: #000;
+  --chatbox-user-message-text-color: #fff;
+
+  --title-font-family: "Baskervville", serif;
+  --desc-font-family: "Noto Sans Thai", sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+.navbar-container {
+  z-index: 999;
+  position: fixed;
+  top: 0;
+  left: -15px;
+  width: 150px;
+  height: 100vh;
+  padding: 30px 0 0 15px;
+  background-color: var(--navbar-bg-color);
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.navbar-logo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.navbar-logo img {
+  width: 100px;
+  height: auto;
+  opacity: 0.7;
+  transition: opacity 200ms ease-in-out;
+}
+
+.navbar-logo img:hover {
+  opacity: 1;
+}
+
+.navbar-items {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item {
+  position: relative;
+  z-index: 999;
+  margin: 25px 0;
+  text-align: center;
+}
+
+.nav-item::before {
+  z-index: 999;
+}
+
+.nav-item::after {
+  z-index: 999;
+  content: "";
+  opacity: 0;
+}
+
+.nav-item:hover::after {
+  content: attr(data-label);
+  position: absolute;
+  z-index: 999;
+  left: calc(100% + 30px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 7px 15px;
+  background-color: var(--navbar-item-bg-color);
+  color: #ffffff;
+  border-radius: 5px;
+  white-space: nowrap;
+  font-family: sans-serif;
+  font-size: 1.1em;
+  opacity: 1;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.item svg {
+  fill: white;
+  width: 45px;
+  height: auto;
+  padding: 3px;
+  border-radius: 10px;
+  background-color: transparent;
+  transition: background-color 200ms ease-in-out;
+}
+
+.item svg:hover {
+  background-color: #C39282;
+}
+
+.main-content {
+  position: relative;
+  z-index: 1;
+  background-color: var(--main-bg-color);
+  margin-left: 150px;
+  box-sizing: border-box;
+  padding: 45px;
+  min-height: 100vh;
+}

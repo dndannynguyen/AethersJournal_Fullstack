@@ -1,0 +1,284 @@
+@page "{date?}"
+@using System.Text.Json
+@using System.Text
+@model AethersJournal.Pages.JournalModel
+@functions {
+    public string next()
+    {
+        DateTime todayDate = DateTime.Today;
+        if (@Model.date!.Equals(todayDate.ToString("yyyy-MM-dd")))
+        {
+            return @Model.date;
+        }
+
+        DateTime queryDate = @Model.pageDateTime.AddDays(1);
+        return queryDate.ToString("yyyy-MM-dd");
+    }
+    public string previous()
+    {
+        int lastElementIndex = @Model.Dates!.Count() - 1;
+        DateTime lastDate = @Model.Dates!.ElementAt(lastElementIndex);
+        if (@Model.date!.Equals(lastDate.ToString("yyyy-MM-dd")))
+        {
+            return @Model.date;
+        }
+
+        DateTime queryDate = @Model.pageDateTime.AddDays(-1);
+        return queryDate.ToString("yyyy-MM-dd");
+    }
+}
+
+<script src="~/js/journal.js" defer></script>
+
+@section Scripts
+{
+    <script>
+        let journalId;
+        const chatboxEntry = [];
+        // defer
+        document.addEventListener("DOMContentLoaded", () => {
+            sendGetRequest();
+
+            const chatboxContainer = document.getElementById("chatbox-container");
+            const chatboxContentContainer = document.getElementById("chatbox-content");
+            const chatboxButton = document.getElementById("chatbox-button");
+            chatboxButton.addEventListener("click", async () => {
+                checkChatboxOverflow();
+                chatboxContainer.classList.toggle("visible");
+                scrollToBottom(chatboxContentContainer);
+            });
+
+            const chatboxSendButton = document.getElementById("chatbox-send-icon");
+            chatboxSendButton.addEventListener("click", async () => {
+                await sendMessage(chatboxContentContainer, journalId);
+                checkChatboxOverflow();
+                scrollToBottom(chatboxContentContainer);
+            })
+
+            const chatboxContentBody = document.getElementById("chatbox-content");
+            function checkChatboxOverflow() {
+                if (chatboxContentBody.scrollHeight > chatboxContentBody.clientHeight) {
+                    chatboxContentBody.classList.add('overflow');
+                }
+            }
+        });
+
+        function Next() {
+            const nextDate = "@next()";
+            window.location.href = `/Journal?date=${nextDate}`;
+        }
+
+        function Previous() {
+            const prevDate = "@previous()";
+            window.location.href = `/Journal?date=${prevDate}`;
+        }
+
+        function sendGetRequest() {
+            const url = "https://aethersjournaldatabase.azurewebsites.net/api/JournalEntry/getJournalEntry/@Model.pageDateTime.ToString("yyyy-MM-dd")";
+            fetch(url, { method: "GET", credentials: "include" })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch journal entries.");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const title = document.getElementById("entry-title");
+                    const content = document.getElementById("journal-textarea");
+                    title.value = data.title;
+                    content.value = data.content;
+                    journalId = data.id;
+                })
+                .then(async () => {
+                    const chatboxContentContainer = document.getElementById("chatbox-content");
+                    await populateChat(chatboxContentContainer, journalId);
+                })
+                .catch(error => {
+                    // console.error(error);
+                });
+        }
+
+        function sendPostRequest() {
+            const url = "https://aethersjournaldatabase.azurewebsites.net/api/JournalEntry/addJournalEntry";
+            const title = document.getElementById("entry-title").value;
+            const content = document.getElementById("journal-textarea").value;
+            const date = "@Model.pageDateTime.ToString("yyyy-MM-dd")";
+
+            const journalEntryRequest = {
+                Title: title,
+                Content: content,
+                Date: date
+            };
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify(journalEntryRequest)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to save journal entry.");
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    journalId = data.journalId;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        async function populateChat(chatboxContainer, journalId) {
+            const response = await fetch(`https://aethersjournaldatabase.azurewebsites.net/api/chat/getChat/${journalId}`);
+            if (response.ok) {
+                const chat = await response.json();
+                const messages = chat.messages;
+
+                if (messages.length == 0) return;
+
+                chatboxContainer.innerHTML = "";
+                const chatboxContainerAttribute = chatboxContainer.attributes[0].name;
+                messages.forEach(message => {
+                    if (chatboxEntry.includes(message)) return;
+                    chatboxEntry.push(message);
+                    addMessageToChatbox(chatboxContainer, chatboxContainerAttribute, message.sender, message.content);
+                });
+            }
+        }
+
+        function addMessageToChatbox(chatboxContainer, attribute, sender, message) {
+            if (chatboxEntry.length == 0) chatboxContainer.innerHTML = "";
+            const messageBox = document.createElement("div");
+            messageBox.setAttribute(attribute, "");
+
+            if (sender == "AI") {
+                messageBox.classList.add("ai-message");
+            } else {
+                messageBox.classList.add("user-message");
+            }
+
+            messageBox.innerHTML = message;
+            chatboxContainer.appendChild(messageBox);
+        };
+
+
+        async function sendMessage(chatboxContainer, journalId) {
+            const messageInput = document.getElementById("chatbox-input");
+            const messageValue = messageInput.value;
+            chatboxEntry.push(messageValue)
+
+            if (!messageValue) return;
+
+            const chatboxContainerAttribute = chatboxContainer.attributes[0].name;
+            addMessageToChatbox(chatboxContainer, chatboxContainerAttribute, "user", messageValue);
+
+            messageInput.value = "";
+
+            const response = await fetch(`https://aethersjournaldatabase.azurewebsites.net/api/chat/addMessage/${journalId}`, {
+                method: "POST",
+                body: JSON.stringify({ Sender: "user", Content: messageValue }),
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            });
+
+            if (response.ok) {
+                const aiMessage = await response.json();
+
+                chatboxEntry.push(aiMessage.aiResponse)
+                addMessageToChatbox(chatboxContainer, chatboxContainerAttribute, "AI", aiMessage.aiResponse);
+            }
+        }
+
+        function scrollToBottom(container) {
+            if (container) {
+                container.scrollTo({
+                    top: container.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    </script>
+}
+
+<div id="journal-container">
+    <div id="title-container">
+        <div id="title-section">
+            <div id="date-include-dropdown">
+                <h1 id="date-title">@Model.pageDateTime.ToString("dddd"), @Model.pageDateTime.ToString("MMMM")
+                    @Model.pageDateTime.Day
+                    @Model.pageDateTime.Year</h1>
+                <svg id="date-dropdown-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                    width="24px" fill="#e8eaed">
+                    <path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z" />
+                </svg>
+            </div>
+
+            <div id="date-list">
+                <ul>
+                    @foreach (DateTime datetime in @Model.Dates!)
+                    {
+                        @if (datetime.ToString("yyyy-MM-dd") == @Model.date)
+                        {
+                            <a href="/Journal?date=@datetime.ToString("yyyy-MM-dd")">
+                                <li id="greyed-date">
+                                    @datetime.ToString("dddd") @datetime.ToString("MMMM") @datetime.Day @datetime.Year
+                                </li>
+                            </a>
+                        }
+                        else
+                        {
+                            <a id="date-link" href="/Journal?date=@datetime.ToString("yyyy-MM-dd")">
+                                <li id="date">
+                                    @datetime.ToString("dddd") @datetime.ToString("MMMM") @datetime.Day @datetime.Year
+                                </li>
+                            </a>
+                        }
+                    }
+                </ul>
+            </div>
+            <button id="submit-button" onclick="sendPostRequest()">
+                Save Journal
+            </button>
+        </div>
+        <div id="journal-navigations">
+            <a class="navigation" id="navigation-prev" onclick="Previous()">
+                &lt Previous
+            </a>
+            <a class="navigation" id="navigation-next" onclick="Next()">
+                Next &gt </a>
+        </div>
+    </div>
+    <div id="journal-entry-container">
+        <input type="text" name="title" id="entry-title" placeholder="Title">
+        <textarea name="journal-entry" id="journal-textarea" placeholder="Description"></textarea>
+        <a id="chatbox-button">
+            <svg id="chatbox-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                width="24px" fill="#e8eaed">
+                <path
+                    d="M880-80 720-240H320q-33 0-56.5-23.5T240-320v-40h440q33 0 56.5-23.5T760-440v-280h40q33 0 56.5 23.5T880-640v560ZM160-473l47-47h393v-280H160v327ZM80-280v-520q0-33 23.5-56.5T160-880h440q33 0 56.5 23.5T680-800v280q0 33-23.5 56.5T600-440H240L80-280Zm80-240v-280 280Z" />
+            </svg>
+        </a>
+    </div>
+
+    <div id="chatbox-container">
+        <div id="chatbox-body">
+            <div id="chatbox-content">
+                <div class="ai-message">Enter any thoughts here and I will respond!</div>
+            </div>
+            <div id="chatbox-input-container">
+                <input id="chatbox-input" type="text" id="chatbox-input">
+                <svg id="chatbox-send-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                    width="24px" fill="#e8eaed">
+                    <path
+                        d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
