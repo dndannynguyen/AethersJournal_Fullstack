@@ -1,29 +1,40 @@
 # Aether's Journal
 
 A journal entry web application that use AI to analyze user journal input, and become their therapist.
-![imageaj](https://github.com/user-attachments/assets/dccc0add-db21-49db-a0d7-00f0a08b6267)
+
+![imageaj](https://github.com/user-attachments/assets/96b96cdb-8808-4e85-90e0-93b64e5b0996)
+
 
 
 # Tech Stack
 
-![image](https://github.com/user-attachments/assets/378f5a7c-75bc-4562-8888-3dda7ae65f94)
-
+![image](https://github.com/user-attachments/assets/f4bb26a3-6943-4ad3-bf52-245de1494556)
 
 # Features
 
-![image](https://github.com/user-attachments/assets/9009acb1-5856-4ca5-9a4f-48eb4df4394a)
 ## Journal Entries:
+
+![image](https://github.com/user-attachments/assets/4f00e9c9-2158-414a-b8d6-40bfd68facc1)
+
+
 - Input their journal by date
 - See past journal by choosing the date on calendar
 - Edit today's entries
 ______________________________________________
 
-![image](https://github.com/user-attachments/assets/0c97ec9a-68f2-420a-80ac-190c37221082)
-## AI Chatbox
+## AI Chatbox:
+
+![image](https://github.com/user-attachments/assets/11b14101-5ff5-4414-b6f8-5de45e6e24e1)
+
+
 - The AI will chat with user like a therapist
 - Linked with the journal data to have more context
 ______________________________________________
 
+## AI Analysis and Summary:
 
-![image](https://github.com/user-attachments/assets/7bb6e63c-22d3-4866-82e5-355a60759937)
+![image](https://github.com/user-attachments/assets/fb91e9a3-e5f7-4317-bc00-3b95daaab9d0)
+
+
 - After the user enter the journal, the AI will analyze and summary
+- This will be used when the AI Chatbox need to know more about user
