@@ -9,7 +9,7 @@ public class MongoDBService
 
     {
         var mongoDbConnectionString = Configuration["MONGODB_CONNECTION_STRING"]; 
-        var client = new MongoClient("mongodb+srv://seungjae:aqCtaROMBXyiSQns@aethersjournal.cjf4y.mongodb.net/");
+        var client = new MongoClient(mongoDbConnectionString);
         _database = client.GetDatabase("AethersJournal");
     }
 
